@@ -86,6 +86,11 @@ div {
   border-left-color: green;
 }
 
+.task-item.expire-today {
+  border-left-color: orange;
+  background-color: rgba(200, 200, 0, 0.2);
+}
+
 .task-info {
   margin-right: 30px;
 }

@@ -4,13 +4,13 @@ import { getAnalytics } from "firebase/analytics";
 
 // Configuração do Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyCxuiBqtUwyDb1sl1HAKScQwXqONrwE14w",
-  authDomain: "gerenciador-de-tasks.firebaseapp.com",
-  projectId: "gerenciador-de-tasks",
-  storageBucket: "gerenciador-de-tasks.appspot.com",
-  messagingSenderId: "973575494561",
-  appId: "1:973575494561:web:4b50df493422bddecd49e0",
-  measurementId: "G-797CRVD4ES",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 // Inicialize o Firebase

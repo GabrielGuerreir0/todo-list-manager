@@ -1,13 +1,13 @@
 version: "3.8"
 
 services:
-  vite-react-app:
+  todo-app:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "80:80"
-    container_name: Your-Times
+      - "3000:3000"
+    container_name: todo-list
     networks:
       - webnet
     restart: unless-stopped

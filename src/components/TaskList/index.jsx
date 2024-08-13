@@ -130,8 +130,13 @@ const TaskList = () => {
   //Função para alterar a class da task para alterar o estilo
   const getTaskClassName = (taskDate) => {
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const taskDueDate = new Date(taskDate);
+    taskDueDate.setHours(0, 0, 0, 0);
 
+    if (taskDueDate.getTime() === today.getTime()) {
+      return "task-item expire-today"; // Mesma data
+    }
     return taskDueDate < today ? "task-item expired" : "task-item active";
   };
 

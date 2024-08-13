@@ -1,19 +1,19 @@
-FROM node:18-alpine AS build
+FROM node:18-alpine as build
 
 WORKDIR /app
 
-COPY package.json ./
+ENV PATH /app/node_modules/.bin:$PATH
 
-RUN npm install
-
-COPY . .
-
+COPY package*.json ./
+RUN npm ci --silent
+COPY . ./
 RUN npm run build
 
-FROM nginx:alpine
+FROM nginx:stable-alpine
 
 COPY --from=build /app/dist /usr/share/nginx/html
+COPY ./docker/nginx.conf /etc/nginx/conf.d/defalt.conf
 
-EXPOSE 80
+EXPOSE 3000
 
 CMD ["nginx", "-g", "daemon off;"]
