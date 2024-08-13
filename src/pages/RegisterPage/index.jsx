@@ -21,21 +21,23 @@ const Register = () => {
       };
     }, {})
   );
-  const [error, setError] = useState(""); // Estado para a mensagem de erro
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  //Atualiza o stado do formulario
   const handleChange = ({ target }) => {
     const { id, value } = target;
     setForm({
       ...form,
       [id]: value,
     });
-    setError(""); // Limpa o erro ao digitar
+    setError("");
   };
 
-  const handleSubmit = async (event) => {
+  //Cadastra Usuario
+  const handleRegisterFormSubmit = async (event) => {
     event.preventDefault();
-    const { nome, email, senha, confirmarSenha } = form;
+    const { email, senha, confirmarSenha } = form;
 
     if (senha !== confirmarSenha) {
       setError("As senhas não coincidem.");
@@ -48,8 +50,6 @@ const Register = () => {
         email,
         senha
       );
-
-      // Redireciona para a página de login após o cadastro bem-sucedido
       navigate("/login");
     } catch (error) {
       console.error("Erro ao cadastrar", error);
@@ -57,6 +57,7 @@ const Register = () => {
     }
   };
 
+  //Cancela o cadastro
   const handleCancelRegister = () => {
     navigate("/login"); // Redireciona para a página de login
   };
@@ -67,9 +68,10 @@ const Register = () => {
         <div className="register-img">
           <img src={iconeLogin} alt="icone de cadastro" />
         </div>
+
         <div className="contain-form-register">
           <h1>Cadastrar</h1>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleRegisterFormSubmit}>
             {formRegister.map(({ id, type, label }) => (
               <div key={id}>
                 <input
@@ -84,8 +86,10 @@ const Register = () => {
             <div style={{ minHeight: "24px", color: "red" }}>
               {error && <p>{error}</p>}
             </div>
+
             <div className="operacoes-register">
               <button type="submit">Cadastrar</button>
+
               <button
                 className="btn-cansel"
                 type="button"

@@ -17,7 +17,6 @@ const TaskList = () => {
   const [isNewTask, setIsNewTask] = useState(false);
   const [form, setForm] = useState({ titulo: "", descricao: "", data: "" });
   const [errorMessage, setErrorMessage] = useState("");
-
   const db = getFirestore();
 
   // Função para buscar as tarefas e atualizar o estado
@@ -37,9 +36,10 @@ const TaskList = () => {
   };
 
   useEffect(() => {
-    fetchTasks(); // Busca as tarefas ao montar o componente
+    fetchTasks();
   }, [db]);
 
+  //Função para alterar o campo de data para o formato de Brasilia
   const formatDateToBrazilian = (date) => {
     const d = new Date(date);
     return `${String(d.getDate()).padStart(2, "0")}/${String(
@@ -47,6 +47,7 @@ const TaskList = () => {
     ).padStart(2, "0")}/${d.getFullYear()}`;
   };
 
+  //Função para alterar o campo de data do input
   const formatDateForInput = (date) => {
     const d = new Date(date);
     const offset = d.getTimezoneOffset() * 60000;
@@ -54,7 +55,8 @@ const TaskList = () => {
     return localDate.toISOString().split("T")[0];
   };
 
-  const handleTaskClick = (task) => {
+  //Função para selecionar a task clicada para alteração
+  const handleTaskUpdateClick = (task) => {
     setSelectedTask(task);
     setForm({
       titulo: task.titulo,
@@ -70,8 +72,8 @@ const TaskList = () => {
     setForm({ ...form, [id]: value });
     setErrorMessage("");
   };
-
-  const handleUpdateSubmit = async () => {
+  //Função para alterar as informações da task
+  const handleTaskUpdateSubmit = async () => {
     if (!form.titulo || !form.descricao || !form.data) {
       setErrorMessage("Todos os campos devem ser preenchidos!");
       return;
@@ -95,13 +97,13 @@ const TaskList = () => {
       }
 
       setShowModal(false);
-      fetchTasks(); // Chama a API para atualizar a lista após criar ou editar uma tarefa
+      fetchTasks();
     } catch (error) {
       console.error("Erro ao salvar tarefa:", error);
       alert("Erro ao salvar tarefa.");
     }
   };
-
+  //Função para criar nova task
   const handleCreateNewTask = () => {
     setSelectedTask(null);
     setForm({ titulo: "", descricao: "", data: "" });
@@ -109,20 +111,23 @@ const TaskList = () => {
     setShowModal(true);
   };
 
-  const handleClose = () => {
+  //Função que fecha o modal
+  const handleModalClose = () => {
     setShowModal(false);
   };
 
+  //Função para deletar a task
   const handleDeleteTask = async (id) => {
     try {
       await deleteDoc(doc(db, "tasks", id));
-      fetchTasks(); // Chama a API para atualizar a lista após excluir uma tarefa
+      fetchTasks();
     } catch (error) {
       console.error("Erro ao excluir tarefa:", error);
       alert("Erro ao excluir tarefa.");
     }
   };
 
+  //Função para alterar a class da task para alterar o estilo
   const getTaskClassName = (taskDate) => {
     const today = new Date();
     const taskDueDate = new Date(taskDate);
@@ -135,12 +140,13 @@ const TaskList = () => {
       <div className="titulo">
         <h1>Lista de Tarefas</h1>
       </div>
+
       <div className="scroll">
         <ul className="ul-task">
           {tasks.map((task) => (
             <li
               key={task.id}
-              onClick={() => handleTaskClick(task)}
+              onClick={() => handleTaskUpdateClick(task)}
               className={getTaskClassName(task.data)}
             >
               <div className="task-info">
@@ -148,6 +154,7 @@ const TaskList = () => {
                 <p>{task.descricao}</p>
                 <p>{formatDateToBrazilian(task.data)}</p>{" "}
               </div>
+
               <button
                 className="delete-button"
                 onClick={(e) => {
@@ -161,11 +168,13 @@ const TaskList = () => {
           ))}
         </ul>
       </div>
+
       <div className="add-task-btn">
         <button onClick={handleCreateNewTask} className="new-task-button">
           Nova Tarefa
         </button>
       </div>
+
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -199,10 +208,11 @@ const TaskList = () => {
             </div>
             {errorMessage && <p className="error-message">{errorMessage}</p>}{" "}
             <div className="modal-buttons">
-              <button className="cancel-button" onClick={handleClose}>
+              <button className="cancel-button" onClick={handleModalClose}>
                 Cancelar
               </button>
-              <button className="save-button" onClick={handleUpdateSubmit}>
+
+              <button className="save-button" onClick={handleTaskUpdateSubmit}>
                 {isNewTask ? "Criar" : "Salvar"}
               </button>
             </div>
