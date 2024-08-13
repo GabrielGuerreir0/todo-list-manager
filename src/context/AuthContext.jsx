@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
 
 // Criação do contexto de autenticação
 const AuthContext = createContext();
@@ -10,7 +10,16 @@ export const useAuth = () => {
 
 // Componente de provedor de autenticação
 export const AuthProvider = ({ children }) => {
-  const [idToken, setIdToken] = useState(null);
+  const [idToken, setIdToken] = useState(() => {
+    return localStorage.getItem("todoListManager:idToken");
+  });
+  useEffect(() => {
+    if (idToken) {
+      localStorage.setItem("todoListManager:idToken", idToken);
+    } else {
+      localStorage.removeItem("todoListManager:idToken");
+    }
+  }, [idToken]);
 
   return (
     <AuthContext.Provider value={{ idToken, setIdToken }}>

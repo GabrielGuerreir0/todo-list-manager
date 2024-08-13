@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
-import logo from "../imgs/icon-login.svg";
+import logo from "../../../public/imgs/icon-login.svg";
+import "./NavBar.css";
+import { useAuth } from "../../context/AuthContext";
 
 const Navbar = () => {
   // Estado que controla se o menu hambúrguer está aberto ou fechado.
@@ -12,6 +14,8 @@ const Navbar = () => {
 
   // Função que lida com a autenticação do Firebase.
   const auth = getAuth();
+
+  const { setIdToken } = useAuth();
 
   // Função que lida com o logout do usuário.
   const handleLogout = async (e) => {
@@ -25,6 +29,7 @@ const Navbar = () => {
 
     try {
       await signOut(auth); // Desloga o usuário.
+      setIdToken(null); // Limpa o token de autenticação.
       navigate("/login"); // Redireciona para a página de login.
     } catch (error) {
       console.error("Erro ao sair:", error); // Loga o erro no console.

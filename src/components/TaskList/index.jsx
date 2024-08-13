@@ -8,10 +8,9 @@ import {
   addDoc,
   deleteDoc,
 } from "firebase/firestore";
+import "./TaskList.css";
 
 const TaskList = () => {
-  // Estado para armazenar as tarefas, a tarefa selecionada, se o modal está visível,
-  // se é uma nova tarefa, os dados do formulário, e mensagens de erro.
   const [tasks, setTasks] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -19,31 +18,28 @@ const TaskList = () => {
   const [form, setForm] = useState({ titulo: "", descricao: "", data: "" });
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Referência ao banco de dados Firestore.
   const db = getFirestore();
 
-  // useEffect para buscar as tarefas ao montar o componente.
+  // Função para buscar as tarefas e atualizar o estado
+  const fetchTasks = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "tasks"));
+      const taskList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      taskList.sort((a, b) => new Date(a.data) - new Date(b.data));
+      setTasks(taskList);
+    } catch (error) {
+      console.error("Erro ao buscar tarefas:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "tasks"));
-        const taskList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        // Ordena as tarefas por data de vencimento.
-        taskList.sort((a, b) => new Date(a.data) - new Date(b.data));
-        setTasks(taskList);
-      } catch (error) {
-        console.error("Erro ao buscar tarefas:", error);
-      }
-    };
-
-    fetchTasks();
+    fetchTasks(); // Busca as tarefas ao montar o componente
   }, [db]);
 
-  // Formata a data para o formato brasileiro (dd/mm/aaaa).
   const formatDateToBrazilian = (date) => {
     const d = new Date(date);
     return `${String(d.getDate()).padStart(2, "0")}/${String(
@@ -51,17 +47,13 @@ const TaskList = () => {
     ).padStart(2, "0")}/${d.getFullYear()}`;
   };
 
-  // Formata a data para ser utilizada em um input (aaaa-mm-dd).
   const formatDateForInput = (date) => {
     const d = new Date(date);
-    d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); // Ajusta para o fuso horário local.
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
-      2,
-      "0"
-    )}-${String(d.getDate()).padStart(2, "0")}`;
+    const offset = d.getTimezoneOffset() * 60000;
+    const localDate = new Date(d.getTime() - offset);
+    return localDate.toISOString().split("T")[0];
   };
 
-  // Ao clicar em uma tarefa, preenche o formulário com os dados dela.
   const handleTaskClick = (task) => {
     setSelectedTask(task);
     setForm({
@@ -73,15 +65,13 @@ const TaskList = () => {
     setShowModal(true);
   };
 
-  // Atualiza o estado do formulário ao alterar os campos.
   const handleChange = ({ target }) => {
     const { id, value } = target;
     setForm({ ...form, [id]: value });
-    setErrorMessage(""); // Limpa a mensagem de erro ao digitar.
+    setErrorMessage("");
   };
 
-  // Envia o formulário, validando os campos e adicionando ou atualizando a tarefa.
-  const handleSubmit = async () => {
+  const handleUpdateSubmit = async () => {
     if (!form.titulo || !form.descricao || !form.data) {
       setErrorMessage("Todos os campos devem ser preenchidos!");
       return;
@@ -89,74 +79,50 @@ const TaskList = () => {
 
     try {
       const date = new Date(form.data);
-      date.setMinutes(date.getMinutes() + date.getTimezoneOffset()); // Ajusta a data para UTC.
+      date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
 
       if (isNewTask) {
-        // Adiciona uma nova tarefa.
-        const docRef = await addDoc(collection(db, "tasks"), {
+        await addDoc(collection(db, "tasks"), {
           ...form,
           data: date.toISOString(),
         });
-        const newTask = { id: docRef.id, ...form };
-        // Atualiza a lista de tarefas com a nova tarefa.
-        setTasks((prevTasks) => {
-          const updatedTasks = [...prevTasks, newTask];
-          return updatedTasks.sort(
-            (a, b) => new Date(a.data) - new Date(b.data)
-          );
-        });
       } else {
-        // Atualiza uma tarefa existente.
         const taskRef = doc(db, "tasks", selectedTask.id);
         await updateDoc(taskRef, {
           ...form,
           data: date.toISOString(),
         });
-        setTasks((prevTasks) =>
-          prevTasks
-            .map((task) =>
-              task.id === selectedTask.id ? { ...task, ...form } : task
-            )
-            .sort((a, b) => new Date(a.data) - new Date(b.data))
-        );
       }
+
       setShowModal(false);
+      fetchTasks(); // Chama a API para atualizar a lista após criar ou editar uma tarefa
     } catch (error) {
       console.error("Erro ao salvar tarefa:", error);
       alert("Erro ao salvar tarefa.");
     }
   };
 
-  // Cria uma nova tarefa, limpando o formulário e abrindo o modal.
-  const handleNewTask = () => {
+  const handleCreateNewTask = () => {
     setSelectedTask(null);
     setForm({ titulo: "", descricao: "", data: "" });
     setIsNewTask(true);
     setShowModal(true);
   };
 
-  // Fecha o modal.
   const handleClose = () => {
     setShowModal(false);
   };
 
-  // Exclui uma tarefa.
-  const handleDelete = async (id) => {
+  const handleDeleteTask = async (id) => {
     try {
       await deleteDoc(doc(db, "tasks", id));
-      // Remove a tarefa da lista.
-      setTasks((prevTasks) =>
-        prevTasks
-          .filter((task) => task.id !== id)
-          .sort((a, b) => new Date(a.data) - new Date(b.data))
-      );
+      fetchTasks(); // Chama a API para atualizar a lista após excluir uma tarefa
     } catch (error) {
       console.error("Erro ao excluir tarefa:", error);
       alert("Erro ao excluir tarefa.");
     }
   };
 
-  // Define a classe CSS da tarefa com base na data (vencida ou ativa).
   const getTaskClassName = (taskDate) => {
     const today = new Date();
     const taskDueDate = new Date(taskDate);
@@ -185,8 +151,8 @@ const TaskList = () => {
               <button
                 className="delete-button"
                 onClick={(e) => {
-                  e.stopPropagation(); // Previne a propagação do evento para o clique do item
-                  handleDelete(task.id);
+                  e.stopPropagation();
+                  handleDeleteTask(task.id);
                 }}
               >
                 Excluir
@@ -196,7 +162,7 @@ const TaskList = () => {
         </ul>
       </div>
       <div className="add-task-btn">
-        <button onClick={handleNewTask} className="new-task-button">
+        <button onClick={handleCreateNewTask} className="new-task-button">
           Nova Tarefa
         </button>
       </div>
@@ -236,7 +202,7 @@ const TaskList = () => {
               <button className="cancel-button" onClick={handleClose}>
                 Cancelar
               </button>
-              <button className="save-button" onClick={handleSubmit}>
+              <button className="save-button" onClick={handleUpdateSubmit}>
                 {isNewTask ? "Criar" : "Salvar"}
               </button>
             </div>

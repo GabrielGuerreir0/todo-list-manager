@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { auth } from "../config/firebase";
+import { auth } from "../../config/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { useAuth } from "../config/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import iconeLogin from "../imgs/icon-login.svg";
+import iconeLogin from "../../../public/imgs/icon-login.svg";
+import "./Login.css";
 
 // Define os campos do formulário de login com seus respectivos IDs, rótulos e tipos.
 const formLogin = [
@@ -41,7 +42,7 @@ const Login = () => {
   };
 
   // Lida com o envio do formulário, realizando o login.
-  const handleSubmit = async (event) => {
+  const handleFormSubmit = async (event) => {
     event.preventDefault();
     try {
       const { email, senha } = form;
@@ -71,7 +72,7 @@ const Login = () => {
         </div>
         <div className="contain-form-login">
           <h1>Login</h1>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleFormSubmit}>
             {formLogin.map(({ id, type, label }) => (
               <div key={id}>
                 <input

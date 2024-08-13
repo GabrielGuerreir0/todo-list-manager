@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { getAuth, deleteUser, signOut } from "firebase/auth";
-import fotoUser from "../imgs/icon-login.svg";
-
+import userPhoto from "../../../public/imgs/icon-login.svg";
+import "./ShowUser.css";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 const ShowUser = () => {
   // Estado para armazenar os dados do usuário autenticado.
   const [user, setUser] = useState(null);
@@ -11,6 +13,8 @@ const ShowUser = () => {
 
   // Autenticação do Firebase.
   const auth = getAuth();
+
+  const { setIdToken } = useAuth();
 
   // useEffect para carregar os dados do usuário autenticado quando o componente é montado.
   useEffect(() => {
@@ -34,7 +38,8 @@ const ShowUser = () => {
   const handleDeleteUser = async () => {
     try {
       await deleteUser(auth.currentUser); // Deleta o usuário.
-      window.location.href = "/login"; // Redireciona para a página de login após a exclusão.
+      setIdToken(null);
+      Navigate("/login"); // Redireciona para a página de login após a exclusão.
     } catch (error) {
       console.error("Erro ao excluir usuário:", error); // Loga o erro no console.
       setErrorMessage("Erro ao excluir usuário."); // Define a mensagem de erro.
@@ -45,7 +50,8 @@ const ShowUser = () => {
   const handleSignOut = async () => {
     try {
       await signOut(auth); // Desloga o usuário.
-      window.location.href = "/login"; // Redireciona para a página de login após o logout.
+      setIdToken(null);
+      Navigate("/login"); // Redireciona para a página de login após o logout.
     } catch (error) {
       console.error("Erro ao sair:", error); // Loga o erro no console.
       setErrorMessage("Erro ao sair."); // Define a mensagem de erro.
@@ -59,7 +65,7 @@ const ShowUser = () => {
           <div className="user-info">
             <h1>Dados de {user.email}</h1>
             <div className="imagem-user">
-              <img src={fotoUser} alt="foto usuario" />
+              <img src={userPhoto} alt="foto usuario" />
             </div>
             <p>
               <strong>Email:</strong> {user.email}

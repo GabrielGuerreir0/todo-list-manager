@@ -1,19 +1,20 @@
 import React, { useState } from "react";
-import { auth } from "../config/firebase";
+import { auth } from "../../config/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import iconeLogin from "../imgs/icon-login.svg";
+import iconeLogin from "../../../public/imgs/icon-login.svg";
+import "./Register.css";
 
-const formCadastro = [
+const formRegister = [
   { id: "nome", label: "Nome", type: "text" },
   { id: "email", label: "E-mail", type: "email" },
   { id: "senha", label: "Senha", type: "password" },
   { id: "confirmarSenha", label: "Confirmar Senha", type: "password" },
 ];
 
-const Cadastrar = () => {
+const Register = () => {
   const [form, setForm] = useState(
-    formCadastro.reduce((acc, field) => {
+    formRegister.reduce((acc, field) => {
       return {
         ...acc,
         [field.id]: "",
@@ -47,8 +48,6 @@ const Cadastrar = () => {
         email,
         senha
       );
-      // Aqui você pode adicionar o nome do usuário ao perfil, se desejar
-      // userCredential.user.updateProfile({ displayName: nome });
 
       // Redireciona para a página de login após o cadastro bem-sucedido
       navigate("/login");
@@ -58,20 +57,20 @@ const Cadastrar = () => {
     }
   };
 
-  const handleCancel = () => {
+  const handleCancelRegister = () => {
     navigate("/login"); // Redireciona para a página de login
   };
 
   return (
-    <div className="container-bg-login">
-      <div className="login-container">
-        <div className="login-img">
+    <div className="container-bg-register">
+      <div className="register-container">
+        <div className="register-img">
           <img src={iconeLogin} alt="icone de cadastro" />
         </div>
-        <div className="contain-form-login">
+        <div className="contain-form-register">
           <h1>Cadastrar</h1>
           <form onSubmit={handleSubmit}>
-            {formCadastro.map(({ id, type, label }) => (
+            {formRegister.map(({ id, type, label }) => (
               <div key={id}>
                 <input
                   type={type}
@@ -85,12 +84,12 @@ const Cadastrar = () => {
             <div style={{ minHeight: "24px", color: "red" }}>
               {error && <p>{error}</p>}
             </div>
-            <div className="operacoes">
+            <div className="operacoes-register">
               <button type="submit">Cadastrar</button>
               <button
                 className="btn-cansel"
                 type="button"
-                onClick={handleCancel}
+                onClick={handleCancelRegister}
               >
                 Cancelar
               </button>
@@ -102,4 +101,4 @@ const Cadastrar = () => {
   );
 };
 
-export default Cadastrar;
+export default Register;
