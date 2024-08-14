@@ -15,6 +15,7 @@ dist-ssr
 
 # Arquivos de configuração sensíveis
 .env
+.env.production
 
 # Editor directories and files
 .vscode/*
